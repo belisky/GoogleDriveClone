@@ -1,10 +1,11 @@
- 
+import Register from "./Pages/Register/Register";
+import {AuthProvider} from "./Helper/AuthContext"
 
 function App() {
   return (
-    <div >
-       <h1>hello</h1>
-    </div>
+    <AuthProvider>
+      <Register/>
+     </AuthProvider>
   );
 }
 
