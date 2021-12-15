@@ -1,8 +1,10 @@
 import React, { useRef, useState } from 'react'
 import LoginRegister from '../../Components/LoginRegister'
 import { useAuth } from '../../Helper/AuthContext'
+import { useHistory } from 'react-router-dom';
 
 const Login = () => {
+    const history = useHistory();
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const passwordConfirmRef = useRef("");
@@ -19,7 +21,8 @@ const Login = () => {
         try {
             setError("")
             setLoading(true)
-            await loginUser(emailRef.current.value, passwordRef.current.value)
+            await loginUser(emailRef.current.value, passwordRef.current.value);
+            history.push("/")
         } catch {
             setError("Failed to Sign In")
         }

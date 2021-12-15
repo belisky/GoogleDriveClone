@@ -1,9 +1,11 @@
 import React,{useRef,useState} from 'react'
 import LoginRegister from '../../Components/LoginRegister'
 import { useAuth } from '../../Helper/AuthContext'
+import { useHistory } from 'react-router-dom';
 
 
 const Register = () => {
+    const history = useHistory();
     const emailRef = useRef("");
     const passwordRef = useRef("");
     const passwordConfirmRef = useRef("");
@@ -19,7 +21,8 @@ const Register = () => {
         try { 
             setError("")
             setLoading(true)
-           await signUp(emailRef.current.value,passwordRef.current.value)
+            await signUp(emailRef.current.value, passwordRef.current.value)
+            history.push("/")
         } catch {
             setError("Failed to create an account")            
         }
