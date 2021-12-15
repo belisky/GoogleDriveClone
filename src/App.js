@@ -3,6 +3,7 @@ import Login from "./Pages/Login/Login";
 import Dashboard from "./Pages/Dashboard/Dashboard";
 import { AuthProvider } from "./Helper/AuthContext";
 import { BrowerRouter as Router, Switch,Route } from 'react-router-dom'
+import PrivateRoute from './Components/PrivateRoute/PrivateRoute'
 
 
 function App() {
@@ -10,7 +11,7 @@ function App() {
     <Router>
       <AuthProvider>
         <Switch>
-          <Route exact path="/" component={Dashboard}/>
+          <PrivateRoute exact path="/" component={Dashboard}/>
           <Route path="/signup" component={Register} />
           <Route path="/login" component={Login} />
         </Switch>

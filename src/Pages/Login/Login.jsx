@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import LoginRegister from '../../Components/LoginRegister'
+import LoginRegister from '../../Components/LoginRegister/LoginRegister'
 import { useAuth } from '../../Helper/AuthContext'
 import { useHistory } from 'react-router-dom';
 
