@@ -1,26 +1,44 @@
-import Register from "./Pages/Register/Register";
-import Login from "./Pages/Login/Login";
-import Dashboard from "./Pages/Dashboard/Dashboard";
-import UpdateProfile from "./Pages/UpdateProfile/UpdateProfile";
-import { AuthProvider } from "./Helper/AuthContext";
-import { BrowerRouter as Router, Switch,Route } from 'react-router-dom'
-import PrivateRoute from './Components/PrivateRoute/PrivateRoute'
-import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
-
+import {
+  Login,
+  Profile,
+  Register,
+  ForgotPassword,
+  UpdateProfile
+} from './Pages/Authentication' 
+import Dashboard from './Pages/google-drive/Dashboard'
+import AuthProvider from "./Helper/AuthContext";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from 'react-router-dom'
+ import PrivateRoute from "./Components/PrivateRoute/PrivateRoute";
 
 function App() {
+
   return (
-    <Router>
-      <AuthProvider>
-        <Switch>
-          <PrivateRoute exact path="/" component={Dashboard}/>
-          <Route path="/signup" component={Register} />
-          <Route path="/login" component={Login} />
-          <Route path="/forgot-password" component={ForgotPassword} />
-          <Route path="/update-profile" component={UpdateProfile} />
-        </Switch>
-     </AuthProvider>
-    </Router>
+    <AuthProvider>     
+      <Router>
+        <Routes>
+          <Route exact path="/" element={<PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>} />
+          {/*Profile */}
+          <Route   path="/user" element={<PrivateRoute>
+            <Profile />
+          </PrivateRoute>} />
+          <Route   path="/update-profile" element={<PrivateRoute>
+            <UpdateProfile />
+          </PrivateRoute>} />
+
+
+          {/*Auth */}
+          <Route path="/signup" element={<Register/>} />
+          <Route path="/login" element={<Login/>} />
+          <Route path="/forgot-password" element={<ForgotPassword/>} />
+          </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

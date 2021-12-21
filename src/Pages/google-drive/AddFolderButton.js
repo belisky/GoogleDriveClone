@@ -22,10 +22,10 @@ const AddFolderButton = ({currentFolder }) => {
         //creating a folder in the DB
         try {
             const docRef = await addDoc(collection(db, "folders"), {
-                name:  name ,
+                name:   name ,
                 parentId:currentFolder.id,
                 userId:currentUser.uid ,
-                //path,
+                path:currentFolder.path,
                 createdAt: serverTimestamp()
             });
             console.log("Document written with ID: ", docRef.id);
@@ -39,7 +39,7 @@ const AddFolderButton = ({currentFolder }) => {
     }
     return (
         <>
-            <Button onClick={openModal} variant="outine-success" size="sm">
+            <Button onClick={openModal} variant="success" size="sm">
                 <FontAwesomeIcon icon={faFolderPlus} size="2x" />
             </Button>
             <Modal show={open} onHide={closeModal}>

@@ -2,14 +2,14 @@ import React  from 'react'
 import { Form, Button, Card, Container, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
-export default function LoginRegister({emailRef,passwordRef,passwordConfirmRef,handleSubmit,loading,error,register,reset,login}) {
+export default function LoginRegister({emailRef,passwordRef,passwordConfirmRef,handleSubmit,loading,error ,reset,login,message}) {
 
     return (
         <Container style={{minHeight:"100vh"}} className="d-flex align-items-center justify-content-center">
             <div style={{ maxWidth: "400px" }} className="w-100">
                 <Card>
                     <Card.Body>
-                        {reset ?<h2 className="text-center mb-4">Password Reset</h2>:<h2 className="text-center mb-4">{login ? "Sign Up" : "Log In"}</h2>}
+                        {reset ?<h2 className="text-center mb-4">Password Reset</h2>:<h2 className="text-center mb-4">{login ? "Log In" : "Sign Up"}</h2>}
                         {error && <Alert variant="danger">{error}</Alert>}
                         {message && <Alert variant="success">{message}</Alert>}
                         <Form onSubmit={handleSubmit}>
@@ -25,7 +25,7 @@ export default function LoginRegister({emailRef,passwordRef,passwordConfirmRef,h
                                 <Form.Label>Password Confirmation</Form.Label>
                                 <Form.Control type="password" ref={passwordConfirmRef} required />
                             </Form.Group>}
-                            <Button disabled={loading} className="w-100" type="submit" >{reset ? "Reset Password" : `{ login?"Sign Up":"Log In"}`}</Button>
+                            <Button disabled={loading} className="w-100 mt-3" type="submit" >{reset ? "Reset Password" : login ? "Log In" : "Sign Up"}</Button>
                         </Form>
                         {login && <div className="w-100 text-center mt-3">
                             <Link to="/forgot-password">Forgot Password</Link>
@@ -36,7 +36,7 @@ export default function LoginRegister({emailRef,passwordRef,passwordConfirmRef,h
                     </Card.Body>
                 </Card>
                 <div className="w-100 text-center mt-2">
-                    {login ?`Need an account? <Link to="/signup">Sign Up</Link>`:`Already have an account? <Link to="/login">Log In</Link>`}
+                    {login ? <p>Need an account? <Link to="/signup">Sign Up</Link></p> : <p>Already have an account? <Link to="/login">Log In</Link></p>}
                 </div>
             </div>
         </Container>

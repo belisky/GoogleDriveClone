@@ -14,10 +14,7 @@ const Login = () => {
     const { loginUser } = useAuth();
     async function handleSubmit(e) {
         e.preventDefault()
-
-        if (passwordConfirmRef.current.value !== passwordRef.current.value) {
-            return setError("Passwords do not match")
-        }
+ 
         try {
             setError("")
             setLoading(true);

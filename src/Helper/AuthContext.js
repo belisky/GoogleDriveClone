@@ -1,12 +1,12 @@
-import React,{useState,useEffect} from 'react'
+import React,{useState,useEffect,useContext} from 'react'
 import { auth } from '../Config/firebaseConfig';
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     signOut, onAuthStateChanged,
-    updateEmail,
-    updatePassword
-} from 'firebase/auth'
+    sendPasswordResetEmail,updateEmail,updatePassword
+    
+} from '@firebase/auth'
 
 const AuthContext = React.createContext()
 
@@ -19,38 +19,38 @@ export default function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     function signUp(email, password) {
-        return auth.createUserWithEmailAndPassword(email,password)
+        return  createUserWithEmailAndPassword(auth,email,password)
     }
     function loginUser(email, password) {
-        return auth.signInWithEmailAndPassword(email, password)
+        return  signInWithEmailAndPassword(auth,email, password)
     }
     function logout() {
-        return auth.signOut()
+        return  signOut(auth)
     }
     function resetPassword(email) {
-        return auth.sendPasswordResetEmail(email)
+        return  sendPasswordResetEmail(auth,email)
     }
-    function updateEmail(email) {
-        return currentUser.updateEmail(email)
+    function updateMail(email) {
+        return updateEmail(currentUser,email)
     }
-    function updatePassword(password) {
-        return currentUser.updatePassword(password)
+    function updatePass(password) {
+        return updatePassword(currentUser,password)
     }
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
+        const unsubscribe =  onAuthStateChanged(auth,user => {
             setCurrentUser(user)
             setLoading(false)
         })
         return unsubscribe
     }, [])
-    value = {
+    let value = {
         currentUser,
         signUp,
         loginUser,
         logout,
         resetPassword,
-        updatePassword,
-        updateEmail
+        updatePass,
+        updateMail
     }
 
     return (
