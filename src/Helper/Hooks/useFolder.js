@@ -98,7 +98,7 @@ export function useFolder(folderId = null, folder = null) {
             const children = [];
             const folderRef = collection(db, "folders")
 
-            const q = query(folderRef, where("parentId", "==", folderId), orderBy("createdAt"))
+            const q = query(folderRef, where("parentId", "==", folderId), where("parentId", "==", currentUser.uid), orderBy("createdAt"))
 
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
