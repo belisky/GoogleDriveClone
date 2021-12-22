@@ -1,14 +1,16 @@
 import React, { useState } from 'react'
-import { Button, Modal,Form} from 'react-bootstrap'
+import { Button, Modal, Form, Alert } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolderPlus } from '@fortawesome/free-solid-svg-icons'
 import { db } from '../../Config/firebaseConfig'
 import { collection, addDoc, serverTimestamp} from "firebase/firestore"
-import {useAuth} from '../../Helper/AuthContext'
+import { useAuth } from '../../Helper/AuthContext'
+import { ROOT_FOLDER } from '../../Helper/Hooks/useFolder'
 
 const AddFolderButton = ({currentFolder }) => {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
+    const [message, setMessage] = useState("");
     const {currentUser}=useAuth()
     const openModal = () => {
         setOpen(true)
@@ -18,7 +20,7 @@ const AddFolderButton = ({currentFolder }) => {
     }
     const handleSubmit = async(e) => {
         e.preventDefault(); 
-        if (currentFolder == null) return
+        if (currentFolder === null) return
         
 
         const path = [...currentFolder.path]
@@ -32,9 +34,10 @@ const AddFolderButton = ({currentFolder }) => {
                 name:   name ,
                 parentId:currentFolder.id,
                 userId:currentUser.uid ,
-                path:currentFolder.path,
+                path: path,
                 createdAt: serverTimestamp()
             });
+            setMessage(name + " folder created successfully!!!!")
             console.log("Document written with ID: ", docRef.id);
         } catch (e) {
             console.error("Error adding document: ", e);
@@ -42,10 +45,14 @@ const AddFolderButton = ({currentFolder }) => {
 
         setName("");
         closeModal(); 
+        setMessage("")
+
         
     }
     return (
         <>
+            {message && <Alert variant="success">{message}</Alert>}
+
             <Button onClick={openModal} variant="outline-success" size="sm">
                 <FontAwesomeIcon icon={faFolderPlus} size="2x" />
             </Button>
@@ -55,7 +62,7 @@ const AddFolderButton = ({currentFolder }) => {
                         <Form.Group>
                             <Form.Label>Folder Name</Form.Label>
                             <Form.Control type="text" required
-                                value={name}
+                              
                                 onChange={e=>setName(e.target.value) }/>
                         </Form.Group>
                     </Modal.Body>
