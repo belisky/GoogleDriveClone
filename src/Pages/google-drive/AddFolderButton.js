@@ -18,6 +18,13 @@ const AddFolderButton = ({currentFolder }) => {
     }
     const handleSubmit = async(e) => {
         e.preventDefault(); 
+        if (currentFolder == null) return
+        
+
+        const path = [...currentFolder.path]
+        if (currentFolder !== ROOT_FOLDER) {
+            path.push({name:currentFolder.name,id:currentFolder.id})
+        }
 
         //creating a folder in the DB
         try {
@@ -39,7 +46,7 @@ const AddFolderButton = ({currentFolder }) => {
     }
     return (
         <>
-            <Button onClick={openModal} variant="success" size="sm">
+            <Button onClick={openModal} variant="outline-success" size="sm">
                 <FontAwesomeIcon icon={faFolderPlus} size="2x" />
             </Button>
             <Modal show={open} onHide={closeModal}>

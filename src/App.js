@@ -20,10 +20,15 @@ function App() {
     <AuthProvider>     
       <Router>
         <Routes>
+          {/*Drive */}
           <Route exact path="/" element={<PrivateRoute>
             <Dashboard />
           </PrivateRoute>} />
-          {/*Profile */}
+          <Route exact path="/folder/:folderId" element={<PrivateRoute>
+            <Dashboard />
+          </PrivateRoute>} />
+
+          {/*Profile pages */}
           <Route   path="/user" element={<PrivateRoute>
             <Profile />
           </PrivateRoute>} />
@@ -32,7 +37,7 @@ function App() {
           </PrivateRoute>} />
 
 
-          {/*Auth */}
+          {/*Authentication Routes */}
           <Route path="/signup" element={<Register/>} />
           <Route path="/login" element={<Login/>} />
           <Route path="/forgot-password" element={<ForgotPassword/>} />
