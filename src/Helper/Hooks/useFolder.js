@@ -12,7 +12,8 @@ const formattedDoc = (doc) => {
 const ACTIONS = {
     SELECT_FOLDER: 'select-folder',
     UPDATE_FOLDER: 'update-folder',
-    SET_CHILD_FOLDERS: 'set-child-folders'
+    SET_CHILD_FOLDERS: 'set-child-folders',
+    SET_CHILD_FILES:'set-child-files'
 }
 
 export const ROOT_FOLDER = { name: "Root", id: null, path: [] };
@@ -33,6 +34,10 @@ const reducer = (state, action) => {
         case ACTIONS.SET_CHILD_FOLDERS:
             return {
                 ...state, childFolders: action.payload.childFolders
+            }
+        case ACTIONS.SET_CHILD_FILES:
+            return {
+                ...state,childFiles:action.payload.childFiles
             }
         default:
             return state
@@ -79,14 +84,14 @@ export function useFolder(folderId = null, folder = null) {
         }
         return fetching();
     }, [folderId])
-    // useEffect(() => {
-    //     console.log("second")
-    //      return dispatch({
-    //         type: ACTIONS.SELECT_FOLDER,
-    //         payload: { folderId, folder }
-    //      })
+    useEffect(() => {
+        console.log("second")
+         return dispatch({
+            type: ACTIONS.SELECT_FOLDER,
+            payload: { folderId, folder }
+         })
 
-    // }, [folderId, folder])
+    }, [folderId, folder])
 
     useEffect(() => {
         const fetching = async () => {
@@ -104,6 +109,29 @@ export function useFolder(folderId = null, folder = null) {
             });return dispatch({
                 type: ACTIONS.SET_CHILD_FOLDERS,
                 payload: { childFolders: children }
+        })
+        }
+        console.log("fetch" + fetching())
+         return fetching();
+
+    }, [folderId, currentUser])
+
+    useEffect(() => {
+        const fetching = async () => {
+            const children = [];
+            const fileRef = collection(db, "files")
+
+            const q = query(fileRef, where("folderId", "==", folderId),where("userId","==",currentUser.uid), orderBy("createdAt"))
+
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach((doc) => {
+                // doc.data() is never undefined for query doc snapshots
+                console.log(formattedDoc(doc));
+                children.push(formattedDoc(doc))
+         
+            });return dispatch({
+                type: ACTIONS.SET_CHILD_FILES,
+                payload: { childFiles: children }
         })
         }
         console.log("fetch" + fetching())

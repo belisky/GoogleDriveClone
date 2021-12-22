@@ -9,7 +9,7 @@ import {db} from '../../Config/firebaseConfig'
 
 
 const AddFileButton = () => {
-const {currentUser}=useAuth{}
+const {currentUser}=useAuth()
 
     const handleUpload = (e) => {
         const file = e.target.files[0]
