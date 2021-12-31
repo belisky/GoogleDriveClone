@@ -1,11 +1,11 @@
 import { useReducer, useEffect } from 'react'
 import { db } from '../../Config/firebaseConfig'
-import { doc, getDocs, getDoc, query, collection, where, orderBy } from 'firebase/firestore'
+import { doc, getDoc, query, collection, where, orderBy,onSnapshot } from 'firebase/firestore'
 import { useAuth } from '../AuthContext'
 
-const formattedDoc = (doc) => {
+const formattedDoc = (item) => {
     return {
-        id: doc.id, ...doc.data()
+        id: item.id, ...item.data()
     }
 }
 
@@ -26,7 +26,9 @@ const reducer = (state, action) => {
                 folder: action.payload.folder,
                 childFiles: [],
                 childFolders: []
+                
             }
+ 
         case ACTIONS.UPDATE_FOLDER:        
             return {
                 ...state, folder: action.payload.folder
@@ -40,13 +42,13 @@ const reducer = (state, action) => {
                 ...state,childFiles:action.payload.childFiles
             }
         default:
-            return state
+            return {...state}
     }
 }
 
 
 
-export function useFolder(folderId = null, folder = null) {
+ export  function useFolder(folderId=null , folder=null ) {
     const { currentUser } = useAuth()
 
 
@@ -58,61 +60,72 @@ export function useFolder(folderId = null, folder = null) {
     }) 
 
     useEffect(() => {
+        const fetching = () => {
+           
+           return dispatch({
+                type: ACTIONS.SELECT_FOLDER,
+                payload: { folderId, folder }
+            })
+     }
+        console.log("select folder")
+        return  fetching();
 
-        if (folderId === null) {
+    }, [folderId, folder])
+  
+
+    useEffect(() => {
+        const fetching = async() => {
+
+        if (folderId ===null) {
             console.log("first")
-            return dispatch({
+              return dispatch({
                 type: ACTIONS.UPDATE_FOLDER,
                 payload: { folder: ROOT_FOLDER }
             })
         }
-        const fetching = async () => {
+        
             const docRef = doc(db, "folders", folderId);
             const docSnap = await getDoc(docRef);
+            
 
             if (docSnap) {
-
-                return dispatch({
-                    type: ACTIONS.UPDATE_FOLDER,
-                    payload: { folder: formattedDoc(docSnap) }
-                })
                 console.log("Document data:", formattedDoc(docSnap));
+                const updated=formattedDoc(docSnap)
+                  return dispatch({
+                    type: ACTIONS.UPDATE_FOLDER,
+                    payload: { folder: updated }
+                })
+                
             } else {
                 // doc.data() will be undefined in this case
                 console.log("No such document!");
             }
         }
-        return fetching();
-    }, [folderId])
-    useEffect(() => {
-        console.log("second")
-         return dispatch({
-            type: ACTIONS.SELECT_FOLDER,
-            payload: { folderId, folder }
-         })
+        console.log("update folder")
+        return  fetching();
+    }, [folderId ])
 
-    }, [folderId, folder])
 
     useEffect(() => {
         const fetching = async () => {
             const children = [];
             const folderRef = collection(db, "folders")
 
-            const q = query(folderRef, where("parentId", "==", folderId), where("parentId", "==", currentUser.uid), orderBy("createdAt"))
-
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
-                console.log(formattedDoc(doc));
-                children.push(formattedDoc(doc))
-         
-            });return dispatch({
-                type: ACTIONS.SET_CHILD_FOLDERS,
-                payload: { childFolders: children }
-        })
+            const q = query(folderRef, where("parentId", "==", folderId), where("userId", "==", currentUser.uid), orderBy("createdAt"))
+               return onSnapshot(q, (querySnapshot) => {
+             
+                querySnapshot.forEach((doc) => {
+                    children.push(formattedDoc(doc));
+                });
+                   console.log("setting children")
+                   dispatch({
+                      type: ACTIONS.SET_CHILD_FOLDERS,
+                      payload: { childFolders: children }
+                  })
+              });
         }
-        console.log("fetch" + fetching())
-         return fetching();
+        console.log("set child folders" )
+         return   fetching();
 
     }, [folderId, currentUser])
 
@@ -121,26 +134,32 @@ export function useFolder(folderId = null, folder = null) {
             const children = [];
             const fileRef = collection(db, "files")
 
-            const q = query(fileRef, where("folderId", "==", folderId),where("userId","==",currentUser.uid), orderBy("createdAt"))
+            const q = query(fileRef,
+                where("folderId", "==", folderId),
+                where("userId", "==", currentUser.uid),
+                orderBy("createdAt"));
+            
+        return onSnapshot(q, (querySnapshot) => {
 
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                // doc.data() is never undefined for query doc snapshots
-                console.log(formattedDoc(doc));
-                children.push(formattedDoc(doc))
-         
-            });return dispatch({
-                type: ACTIONS.SET_CHILD_FILES,
-                payload: { childFiles: children }
-        })
+                querySnapshot.forEach((doc) => {
+                    children.push(formattedDoc(doc));
+                });
+                  dispatch({
+                    type: ACTIONS.SET_CHILD_FILES,
+                    payload: { childFiles: children }
+                })
+            });
         }
-        console.log("fetch" + fetching())
-         return fetching();
+        console.log("set child files")
+         return   fetching();
 
     }, [folderId, currentUser])
 
 
-    return state
+
+
+console.log("the returned State: "+{...state})
+    return  state
 
     
 }

@@ -1,44 +1,46 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
+import { v4 as uuidv4 } from 'uuid'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
 import { useAuth } from '../../Helper/AuthContext'
 import { storage } from '../../Config/firebaseConfig'
 import { ROOT_FOLDER } from '../../Helper/Hooks/useFolder'
-import { collection, addDoc, serverTimestamp } from "firebase/firestore"
+import { collection, addDoc, serverTimestamp,   updateDoc, doc } from "firebase/firestore"
 import { db } from '../../Config/firebaseConfig'
-import {ProgressBar, Toast} from 'react-bootstrap'
+import { Alert, ProgressBar, Toast } from 'react-bootstrap'
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 
-const AddFileButton = () => {
+const AddFileButton = ({ currentFolder,childFiles}) => {
+    const [message, setMessage] = useState('')
   const[uploadingFiles,setUploadingFiles]=useState([])  
 const {currentUser}=useAuth()
 
-    const handleUpload = (e) => {
+    const handleUpload = async (e) => {
         const file = e.target.files[0]
         if (currentFolder == null || file == null) return
 
-        const id=uuidV4()        
+        const id = uuidv4()        
         setUploadingFiles((prevUploadingFiles) =>
           [  ...prevUploadingFiles,
         {id:id,name:file.name,progress:0,error:false}])
        
         const parentPath = currentFolder.path.length > 0 ?
-            `${currentFolder.path.join('/')}`
-            :""
+            `${currentFolder.path.join('/')}`:""
         
         const filePath = currentFolder === ROOT_FOLDER ?
             `${parentPath} / ${file.name}`
             :`${parentPath}/${currentFolder.name}/${file.name}`
-        
-        const uploadTask = storage
-            .ref(`/files/${currentUser.uid}/${filePath}`)
-            .put(file)
+            console.log(uploadingFiles)
 
+        const storageRef = ref(storage, `/files/${currentUser.uid}/${filePath}`)
+        const uploadTask = uploadBytesResumable(storageRef, file);
         uploadTask.on(
             'state_changed',
             snapshot => {
-                const progress = snapshot.bytesTransferred / snapshot.totalBytes
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes)
+                console.log(progress)
                 setUploadingFiles(prevUploadingFiles => {
                     return prevUploadingFiles.map(uploadFile => {
                         if (uploadFile.id === id) {
@@ -58,50 +60,84 @@ const {currentUser}=useAuth()
                     })
                 })
              },
-            () => {
+            async () => {
                 setUploadingFiles(prevUploadingFiles => {
                     return prevUploadingFiles.filter(uploadFile => {
-                        return uploadFile.id!==id
+                        return uploadFile.id !== id
                     })
                 })
-                uploadTask.snapshot.ref.getDownloadURL().then(url => {
+                getDownloadURL(uploadTask.snapshot.ref).then(url => {
+                    const preventDuplicate = async (childfile) => {
+                        if (childfile.name===file.name){
+                        const updateRef = doc(db, "files", childfile.id);
+                            console.log("updateRef: " + updateRef)
+                            console.log("i prevented duplicate")
+                        setMessage(file.name + " overwritten successfully!!!");
+                        return await updateDoc(updateRef, { url: url });
+                        }
+                    }
+                    childFiles.map(childfile=>(preventDuplicate(childfile)))
+                     
+                    
+                 
+                    
+                             
+                    
                     // try {
                     //     const fileRef = collection(db, "files")
+                    //     console.log(fileRef)
 
-                    //     const q = query(fileRef, where("name", "==",file.name), where("userId", "==", currentUser.uid),where("folderId","==",currentFolder.id), orderBy("createdAt"))
+                    //     const q = query(fileRef, where("name", "==",file.name), where("userId", "==", currentUser.uid),where("folderId","==",currentFolder.id) )
 
-                    //     const querySnapshot = await getDocs(q);
-                    //     querySnapshot.forEach((doc) => {
-                    //         const existingFile=doc.docs[0]
-                    //         // doc.data() is never undefined for query doc snapshots
-                    //         console.log(formattedDoc(doc));
-                    //         children.push(formattedDoc(doc))
+                        
+                    //     async function getting() {
+                    //         const querySnapshot = await getDoc(q);
+                    //         return (querySnapshot.data()); 
+                            
+                    //     }
+                    //     console.log(getting())
+                        
+                           // const existingFile=querySnapshot 
+                            // doc.data() is never undefined for query doc snapshots
+                        // if (existingFile) {
+                                 
+                        //    return updateDoc(q,{url:url})
+                        //      }
+        
+                    try {
+            console.log("i added duplicate")
+            const docRef = addDoc(collection(db, "files"), {
+                url: url,
+                name: file.name,
+                folderId: currentFolder.id,
+                userId: currentUser.uid,
+                createdAt: serverTimestamp()
+            });
+                        setMessage(file.name + " uploaded successfully!!!!")
+                        setUploadingFiles("");
+            console.log("Document written with ID: ", docRef.id);
+        }
+        catch (e) {
+                console.error("Error adding document: ", e);
+                    }
 
-                    //     });
-                    //     setMessage(name + " folder created successfully!!!!")
-                    //     console.log("Document written with ID: ", docRef.id);
-                    // } catch (e) {
+
+                    setMessage("")                          
+                    //    }
+                     
+                        
+                        
+                    //   catch (e) {
                     //     console.error("Error adding document: ", e);
                     // }
-                    try {
-                        const docRef = await addDoc(collection(db, "files"), {
-                            url:url,
-                            name:file.name,
-                            folderId: currentFolder.id,
-                            userId: currentUser.uid,                             
-                            createdAt: serverTimestamp()
-                        });
-                        setMessage(name + " folder created successfully!!!!")
-                        console.log("Document written with ID: ", docRef.id);
-                    } catch (e) {
-                        console.error("Error adding document: ", e);
-                    }
+                   
                 })
             }
         )
     }
     return (
-        <>
+        <div style={{ position: 'relative' }}>
+            {message && <Alert>{message}</Alert>}
             <label className="btn btn-outline-success btn-sm m-0 mr-2">
                 <FontAwesomeIcon icon={faFileUpload}/>
                 < input type="file" onChange={handleUpload}
@@ -110,13 +146,8 @@ const {currentUser}=useAuth()
             </label>
             {uploadingFiles.length > 0 &&
                 ReactDOM.createPortal(
-                    <div style={{
-                        position: 'absolute',
-                        bottom: '1rem',
-                        right: '1rem',
-                        maxWidth:'250px'
-                    }}>
-                        {uploadingFiles.map(file => {
+                    <div>
+                        {uploadingFiles.map(file => (
                             <Toast key={file.id} onClose={() => {
                                 setUploadingFiles(prevUploadingFiles => {
                                     return prevUploadingFiles.filter(uploadFile => {
@@ -130,7 +161,7 @@ const {currentUser}=useAuth()
                                     {file.name}
                                 </Toast.Header>
                                 <Toast.Body>
-                                    <ProgressBar animated={!file.error}
+                                    <ProgressBar animated 
                                         variant={file.error ? 'danger' : 'primary'}
                                         now={file.error ? 100 : file.progress * 100}
                                         label={
@@ -138,11 +169,12 @@ const {currentUser}=useAuth()
                                     }/>
                                 </Toast.Body>
                             </Toast>
-                        })}
+                        ))}
                     </div>,
                     document.body
             )}
-        </>
+            
+        </div>
     )
 }
 

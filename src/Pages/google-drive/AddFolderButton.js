@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Modal, Form, Alert } from 'react-bootstrap'
+import { Button, Modal, Form  } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolderPlus } from '@fortawesome/free-solid-svg-icons'
 import { db } from '../../Config/firebaseConfig'
@@ -10,7 +10,7 @@ import { ROOT_FOLDER } from '../../Helper/Hooks/useFolder'
 const AddFolderButton = ({currentFolder }) => {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
-    const [message, setMessage] = useState("");
+    //const [message, setMessage] = useState("");
     const {currentUser}=useAuth()
     const openModal = () => {
         setOpen(true)
@@ -23,7 +23,8 @@ const AddFolderButton = ({currentFolder }) => {
         if (currentFolder === null) return
         
 
-        const path = [...currentFolder.path]
+         
+            const path = [...currentFolder.path];
         if (currentFolder !== ROOT_FOLDER) {
             path.push({name:currentFolder.name,id:currentFolder.id})
         }
@@ -37,21 +38,20 @@ const AddFolderButton = ({currentFolder }) => {
                 path: path,
                 createdAt: serverTimestamp()
             });
-            setMessage(name + " folder created successfully!!!!")
+            // setMessage(name + " folder created successfully!!!!")
             console.log("Document written with ID: ", docRef.id);
         } catch (e) {
             console.error("Error adding document: ", e);
         }
 
-        setName("");
+        // setName("");
         closeModal(); 
-        setMessage("")
-
-        
+        // setMessage("")
+        return
     }
     return (
         <>
-            {message && <Alert variant="success">{message}</Alert>}
+   
 
             <Button onClick={openModal} variant="outline-success" size="sm">
                 <FontAwesomeIcon icon={faFolderPlus} size="2x" />

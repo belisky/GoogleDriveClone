@@ -4,9 +4,9 @@ import { Button } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import {faFolder} from '@fortawesome/free-solid-svg-icons'
 
-const Folder = ({folder}) => {
+const Folder = ({folder }) => {
     return (
-        <Button to={{
+        <Button   to={{
             pathname: `/folder/${folder.id}`,
             state: { folder: folder }
         }} variant="outline-dark" className="text-truncate w-100" as={Link}>
@@ -16,4 +16,4 @@ const Folder = ({folder}) => {
     )
 }
 
-export default Folder
+export default  Folder
