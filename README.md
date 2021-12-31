@@ -1,10 +1,12 @@
 # About
 This project looks at the full functionality of React firebase authentications including password reset,updating user credentials among others...
+And leveraging this functionality to implement a Google drive clone...
 
 # New and in Depth Features Include:
     ### Custom hooks.
     ### Protected Routes implemented by using self created custom hooks.
     ### Full power of react Context-API.
+    ### UseReducer Hook.
 
 # Dependencies
     ### Bootstrap
@@ -18,3 +20,8 @@ This project looks at the full functionality of React firebase authentications i
     ### Logic of async Functions.
     ### Using useRef hook for input as opposed to useState.
     ### Routing using react-router-dom.
+    ### Functional Cleanup from useEffect hooks.
+    ### Difference b/n returning a function call and returning arrow function from useEffect...
+    ### Writing Rules in firestore DB.
+    ### Firestore for uploading files(non-sql DB).
+    ### Firebase Database(Collections).
