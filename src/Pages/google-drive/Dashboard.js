@@ -20,7 +20,7 @@ const Dashboard = () => {
         <>
             <Navigation />
             <Container fluid>
-                <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center" style={{ position: 'relative' }}>
                     <FolderBreadCrumbs currentFolder={folder} />
                     <AddFileButton currentFolder={folder} childFiles={childFiles}/>
                 <AddFolderButton currentFolder={folder}/>

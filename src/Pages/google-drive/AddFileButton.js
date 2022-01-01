@@ -79,7 +79,6 @@ const {currentUser}=useAuth()
                         const existingFile = querySnapshot.docs[0];
                         console.log(existingFile.ref)
                         if (existingFile) {
-                            console.log("updated with success")
                              return await updateDoc(existingFile.ref, { url: url }) 
                      
                         }} catch(e){
@@ -98,18 +97,22 @@ const {currentUser}=useAuth()
                         }
                         catch (e) {
                             console.error("Error adding document: ", e);
-                        }}
-
+                            }
+                        }
+                        setMessage('');
                     }
-                    return getting() 
-                   
+                    return getting()                    
                 })
             }
         )
     }
     return (
-        <div style={{ position: 'relative' }}>
-            {message && <Alert>{message}</Alert>}
+        <div >
+            {message && <div style={{
+                position: 'absolute',
+            top:'-50',left:0,right:0}}>
+                <Alert>{message}</Alert>
+            </div>}
             <label className="btn btn-outline-success btn-sm m-0 mr-2">
                 <FontAwesomeIcon icon={faFileUpload}/>
                 < input type="file" onChange={handleUpload}

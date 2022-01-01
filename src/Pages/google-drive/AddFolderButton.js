@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Modal, Form  } from 'react-bootstrap'
+import { Button, Modal, Form,Alert } from 'react-bootstrap'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFolderPlus } from '@fortawesome/free-solid-svg-icons'
 import { db } from '../../Config/firebaseConfig'
@@ -10,7 +10,7 @@ import { ROOT_FOLDER } from '../../Helper/Hooks/useFolder'
 const AddFolderButton = ({currentFolder }) => {
     const [open, setOpen] = useState(false);
     const [name, setName] = useState("");
-    //const [message, setMessage] = useState("");
+     const [message, setMessage] = useState("");
     const {currentUser}=useAuth()
     const openModal = () => {
         setOpen(true)
@@ -28,27 +28,33 @@ const AddFolderButton = ({currentFolder }) => {
         }
         //creating a folder in the DB
         try {
-            const docRef = await addDoc(collection(db, "folders"), {
-                name:   name ,
-                parentId:currentFolder.id,
-                userId:currentUser.uid ,
+             await addDoc(collection(db, "folders"), {
+                name: name,
+                parentId: currentFolder.id,
+                userId: currentUser.uid,
                 path: path,
                 createdAt: serverTimestamp()
+                
             });
-            // setMessage(name + " folder created successfully!!!!")
-            console.log("Document written with ID: ", docRef.id);
-        } catch (e) {
+            setMessage(name + " folder added successfully");
+
+         } catch (e) {
             console.error("Error adding document: ", e);
         }
 
-        // setName("");
+          setName("");
         closeModal(); 
-        // setMessage("")
+          setMessage("")
         return
     }
     return (
         <>
-   
+            {message && <div style={{
+                position: 'absolute',
+                top: '-50', left: 0, right: 0
+            }}>
+                <Alert>{message}</Alert>
+            </div>}
 
             <Button onClick={openModal} variant="outline-success" size="sm">
                 <FontAwesomeIcon icon={faFolderPlus} size="2x" />
