@@ -18,15 +18,14 @@ const ACTIONS = {
 
 export const ROOT_FOLDER = { name: "Root", id: null, path: [] };
 
-const reducer = (state, action) => {
+function reducer(state, action) {
     switch (action.type) {
         case ACTIONS.SELECT_FOLDER:    
             return {
                 folderId: action.payload.folderId,
                 folder: action.payload.folder,
                 childFiles: [],
-                childFolders: []
-                
+                childFolders: []                
             }
  
         case ACTIONS.UPDATE_FOLDER:        
@@ -42,7 +41,7 @@ const reducer = (state, action) => {
                 ...state,childFiles:action.payload.childFiles
             }
         default:
-            return {...state}
+            return state
     }
 }
 
@@ -82,23 +81,23 @@ const reducer = (state, action) => {
                 type: ACTIONS.UPDATE_FOLDER,
                 payload: { folder: ROOT_FOLDER }
             })
-        }
-        
-            const docRef = doc(db, "folders", folderId);
-            const docSnap = await getDoc(docRef);
-            
-
-            if (docSnap) {
+        }        
+            const docRef = doc(db, "folders", folderId);      
+            try {
+                const docSnap = await getDoc(docRef);
                 console.log("Document data:", formattedDoc(docSnap));
                 const updated=formattedDoc(docSnap)
-                  return dispatch({
+                   dispatch({
                     type: ACTIONS.UPDATE_FOLDER,
                     payload: { folder: updated }
+                })                 
+            } catch (e) {
+                  dispatch({
+                    type: ACTIONS.UPDATE_FOLDER,
+                    payload: { folder: ROOT_FOLDER }
                 })
-                
-            } else {
                 // doc.data() will be undefined in this case
-                console.log("No such document!");
+                //console.log("No such document!",e);
             }
         }
         console.log("update folder")
@@ -108,21 +107,24 @@ const reducer = (state, action) => {
 
     useEffect(() => {
         const fetching = async () => {
-            const children = [];
+  
             const folderRef = collection(db, "folders")
 
             const q = query(folderRef, where("parentId", "==", folderId), where("userId", "==", currentUser.uid), orderBy("createdAt"))
-               return onSnapshot(q, (querySnapshot) => {
-             
-                querySnapshot.forEach((doc) => {
-                    children.push(formattedDoc(doc));
+               const unsubscribe=onSnapshot(q, (querySnapshot) => {
+                   const children = [];
+                querySnapshot.forEach((result) => {
+                    children.push(formattedDoc(result));
                 });
                    console.log("setting children")
                    dispatch({
                       type: ACTIONS.SET_CHILD_FOLDERS,
                       payload: { childFolders: children }
                   })
-              });
+               }, (error) => {
+                   console.log(error)
+               });
+            unsubscribe();
         }
         console.log("set child folders" )
          return   fetching();

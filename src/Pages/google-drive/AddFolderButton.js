@@ -20,15 +20,12 @@ const AddFolderButton = ({currentFolder }) => {
     }
     const handleSubmit = async(e) => {
         e.preventDefault(); 
-        if (currentFolder === null) return
+        if (currentFolder === null) return  
         
-
-         
             const path = [...currentFolder.path];
         if (currentFolder !== ROOT_FOLDER) {
             path.push({name:currentFolder.name,id:currentFolder.id})
         }
-
         //creating a folder in the DB
         try {
             const docRef = await addDoc(collection(db, "folders"), {

@@ -11,17 +11,10 @@ import { useParams,useLocation } from 'react-router-dom'
 
 const Dashboard = () => {
     const { folderId } = useParams()
-    console.log(folderId)
     const {state={}} = useLocation() 
-    console.log(state)    
-     
+   
     const { childFolders, folder, childFiles } = useFolder(folderId,state);
-    console.log(folder)
-    //console.log(folderId)
-    console.log(childFolders)
-    console.log(childFiles)
-
-    return (
+  return (
         <>
             <Navigation />
             <Container fluid>
@@ -33,11 +26,10 @@ const Dashboard = () => {
                 </div>
                 {childFolders.length > 0 && (
                     <div className="d-flex flex-wrap">
-                        {childFolders.map(childFolder => (
-                             
-                            <div key={childFolder.id} style={{ maxWidth: "150px" }}
+                        {childFolders.map(child => (                             
+                            <div key={child.id} style={{ maxWidth: "150px" }}
                                 className="p-2">
-                                <Folder   folder={childFolder} />
+                                <Folder folder={child} />
                             </div>
                         ))}
                     </div>
