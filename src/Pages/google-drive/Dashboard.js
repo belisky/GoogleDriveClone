@@ -14,9 +14,7 @@ const Dashboard = () => {
     const {state={}} = useLocation() 
    
     const { childFolders, folder, childFiles } = useFolder(folderId, state);
-    console.log(childFolders)
-    console.log(childFiles)
-  return (
+   return (
         <>
             <Navigation />
             <Container fluid>

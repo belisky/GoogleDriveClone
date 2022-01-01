@@ -79,7 +79,6 @@ function reducer(state, action) {
             const docRef = doc(db, "folders", folderId);      
             try {
                 const docSnap = await getDoc(docRef);
-                console.log("Document data:", formattedDoc(docSnap));
                 const updated=formattedDoc(docSnap)
                    dispatch({
                     type: ACTIONS.UPDATE_FOLDER,
@@ -91,8 +90,7 @@ function reducer(state, action) {
                     payload: { folder: ROOT_FOLDER }
                 })
                 }
-        }
-        console.log("update folder")
+        } 
         return  fetching();
     }, [folderId ]) 
     useEffect(() => {

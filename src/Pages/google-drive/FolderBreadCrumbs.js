@@ -7,8 +7,7 @@ const FolderBreadCrumbs = ({ currentFolder }) => {
     let path = currentFolder === ROOT_FOLDER ? [] : [ROOT_FOLDER]
     if (currentFolder) {
         path = [...path,...currentFolder.path]
-    } 
-    console.log("this",path)
+    }   
     return (
         <Breadcrumb
             className="flex-grow-1"
