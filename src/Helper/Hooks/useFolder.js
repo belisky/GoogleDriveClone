@@ -8,7 +8,6 @@ const formattedDoc = (item) => {
         id: item.id, ...item.data()
     }
 }
-
 const ACTIONS = {
     SELECT_FOLDER: 'select-folder',
     UPDATE_FOLDER: 'update-folder',
@@ -43,9 +42,7 @@ function reducer(state, action) {
         default:
             return state
     }
-}
-
-
+} 
 
  export  function useFolder(folderId=null , folder=null ) {
     const { currentUser } = useAuth()
@@ -59,18 +56,15 @@ function reducer(state, action) {
     }) 
 
     useEffect(() => {
-        const fetching = () => {
-           
+        const fetching = () => {           
            return dispatch({
                 type: ACTIONS.SELECT_FOLDER,
                 payload: { folderId, folder }
             })
-     }
-        console.log("select folder")
+     }         
         return  fetching();
 
-    }, [folderId, folder])
-  
+    }, [folderId, folder])  
 
     useEffect(() => {
         const fetching = async() => {
@@ -96,20 +90,13 @@ function reducer(state, action) {
                     type: ACTIONS.UPDATE_FOLDER,
                     payload: { folder: ROOT_FOLDER }
                 })
-                // doc.data() will be undefined in this case
-                //console.log("No such document!",e);
-            }
+                }
         }
         console.log("update folder")
         return  fetching();
-    }, [folderId ])
-
-
+    }, [folderId ]) 
     useEffect(() => {
-       
-  
             const folderRef = collection(db, "folders")
-
             const q = query(folderRef, where("parentId", "==", folderId), where("userId", "==", currentUser.uid), orderBy("createdAt"))
                const unsubscribe=onSnapshot(q, (querySnapshot) => {
                    const children = [];
@@ -124,23 +111,15 @@ function reducer(state, action) {
                }, (error) => {
                    console.log(error)
                });
-              
-        
-        console.log("set child folders" )
         return () => unsubscribe();
-
     }, [folderId, currentUser])
 
-    useEffect(() => {
-         
-            
-            const fileRef = collection(db, "files")
-
+     useEffect(() => {    
+        const fileRef = collection(db, "files")
             const q = query(fileRef,
                 where("folderId", "==", folderId),
                 where("userId", "==", currentUser.uid),
-                orderBy("createdAt"));
-            
+                orderBy("createdAt"));            
         const unsubscribe= onSnapshot(q, (querySnapshot) => {
             const children = [];
                 querySnapshot.forEach((item) => {
@@ -153,12 +132,7 @@ function reducer(state, action) {
         }, (error) => {
             console.log(error)
         });
-              
-        
-        console.log("set child files")
-         
-        return ()=> unsubscribe()  ;
-
+         return () => unsubscribe();
     }, [folderId, currentUser])
     return state    
 }

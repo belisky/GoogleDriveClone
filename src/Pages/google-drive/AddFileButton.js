@@ -6,7 +6,7 @@ import { faFileUpload } from '@fortawesome/free-solid-svg-icons'
 import { useAuth } from '../../Helper/AuthContext'
 import { storage } from '../../Config/firebaseConfig'
 import { ROOT_FOLDER } from '../../Helper/Hooks/useFolder'
-import { collection, addDoc, serverTimestamp,   updateDoc, doc } from "firebase/firestore"
+import { collection, addDoc, serverTimestamp,   updateDoc, query,where,getDocs } from "firebase/firestore"
 import { db } from '../../Config/firebaseConfig'
 import { Alert, ProgressBar, Toast } from 'react-bootstrap'
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -67,69 +67,41 @@ const {currentUser}=useAuth()
                     })
                 })
                 getDownloadURL(uploadTask.snapshot.ref).then(url => {
-                    const preventDuplicate = async (childfile) => {
-                        if (childfile.name===file.name){
-                        const updateRef = doc(db, "files", childfile.id);
-                            console.log("updateRef: " + updateRef)
-                            console.log("i prevented duplicate")
-                        setMessage(file.name + " overwritten successfully!!!");
-                        return await updateDoc(updateRef, { url: url });
+
+                    
+                    const fileRef = collection(db, "files")
+                    const q = query(fileRef, where("name", "==", file.name), where("userId", "==", currentUser.uid), where("folderId", "==", currentFolder.id))
+
+
+                    async function getting() {
+                        try{const querySnapshot = await getDocs(q);
+                        console.log(querySnapshot.docs)
+                        const existingFile = querySnapshot.docs[0];
+                        console.log(existingFile.ref)
+                        if (existingFile) {
+                            console.log("updated with success")
+                             return await updateDoc(existingFile.ref, { url: url }) 
+                     
+                        }} catch(e){
+                        try {
+                            console.log("i added duplicate")
+                            const docRef = addDoc(collection(db, "files"), {
+                                url: url,
+                                name: file.name,
+                                folderId: currentFolder.id,
+                                userId: currentUser.uid,
+                                createdAt: serverTimestamp()
+                            });
+                            setMessage(file.name + " uploaded successfully!!!!")
+                            setUploadingFiles("");
+                            console.log("Document written with ID: ", docRef.id);
                         }
+                        catch (e) {
+                            console.error("Error adding document: ", e);
+                        }}
+
                     }
-                    childFiles.map(childfile=>(preventDuplicate(childfile)))
-                     
-                    
-                 
-                    
-                             
-                    
-                    // try {
-                    //     const fileRef = collection(db, "files")
-                    //     console.log(fileRef)
-
-                    //     const q = query(fileRef, where("name", "==",file.name), where("userId", "==", currentUser.uid),where("folderId","==",currentFolder.id) )
-
-                        
-                    //     async function getting() {
-                    //         const querySnapshot = await getDoc(q);
-                    //         return (querySnapshot.data()); 
-                            
-                    //     }
-                    //     console.log(getting())
-                        
-                           // const existingFile=querySnapshot 
-                            // doc.data() is never undefined for query doc snapshots
-                        // if (existingFile) {
-                                 
-                        //    return updateDoc(q,{url:url})
-                        //      }
-        
-                    try {
-            console.log("i added duplicate")
-            const docRef = addDoc(collection(db, "files"), {
-                url: url,
-                name: file.name,
-                folderId: currentFolder.id,
-                userId: currentUser.uid,
-                createdAt: serverTimestamp()
-            });
-                        setMessage(file.name + " uploaded successfully!!!!")
-                        setUploadingFiles("");
-            console.log("Document written with ID: ", docRef.id);
-        }
-        catch (e) {
-                console.error("Error adding document: ", e);
-                    }
-
-
-                    setMessage("")                          
-                    //    }
-                     
-                        
-                        
-                    //   catch (e) {
-                    //     console.error("Error adding document: ", e);
-                    // }
+                    return getting() 
                    
                 })
             }
