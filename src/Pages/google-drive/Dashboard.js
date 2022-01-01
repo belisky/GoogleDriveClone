@@ -13,7 +13,9 @@ const Dashboard = () => {
     const { folderId } = useParams()
     const {state={}} = useLocation() 
    
-    const { childFolders, folder, childFiles } = useFolder(folderId,state);
+    const { childFolders, folder, childFiles } = useFolder(folderId, state);
+    console.log(childFolders)
+    console.log(childFiles)
   return (
         <>
             <Navigation />

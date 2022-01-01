@@ -106,7 +106,7 @@ function reducer(state, action) {
 
 
     useEffect(() => {
-        const fetching = async () => {
+       
   
             const folderRef = collection(db, "folders")
 
@@ -116,24 +116,24 @@ function reducer(state, action) {
                 querySnapshot.forEach((result) => {
                     children.push(formattedDoc(result));
                 });
-                   console.log("setting children")
-                   dispatch({
+                    
+                  return  dispatch({
                       type: ACTIONS.SET_CHILD_FOLDERS,
                       payload: { childFolders: children }
                   })
                }, (error) => {
                    console.log(error)
                });
-            unsubscribe();
-        }
+              
+        
         console.log("set child folders" )
-         return   fetching();
+        return () => unsubscribe();
 
     }, [folderId, currentUser])
 
     useEffect(() => {
-        const fetching = async () => {
-            const children = [];
+         
+            
             const fileRef = collection(db, "files")
 
             const q = query(fileRef,
@@ -141,27 +141,24 @@ function reducer(state, action) {
                 where("userId", "==", currentUser.uid),
                 orderBy("createdAt"));
             
-        return onSnapshot(q, (querySnapshot) => {
-
-                querySnapshot.forEach((doc) => {
-                    children.push(formattedDoc(doc));
+        const unsubscribe= onSnapshot(q, (querySnapshot) => {
+            const children = [];
+                querySnapshot.forEach((item) => {
+                    children.push(formattedDoc(item));
                 });
-                  dispatch({
+                  return dispatch({
                     type: ACTIONS.SET_CHILD_FILES,
                     payload: { childFiles: children }
                 })
-            });
-        }
+        }, (error) => {
+            console.log(error)
+        });
+              
+        
         console.log("set child files")
-         return   fetching();
+         
+        return ()=> unsubscribe()  ;
 
     }, [folderId, currentUser])
-
-
-
-
-console.log("the returned State: "+{...state})
-    return  state
-
-    
+    return state    
 }
