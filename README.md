@@ -2,6 +2,9 @@
 This project looks at the full functionality of React firebase authentications including password reset,updating user credentials among others...
 And leveraging this functionality to implement a Google drive clone...
 
+# Link to hosted site on heroku..
+### https://bel-drive-clone.herokuapp.com
+
 # New and in Depth Features Include:
     ### Custom hooks.
     ### Protected Routes implemented by using self created custom hooks.
